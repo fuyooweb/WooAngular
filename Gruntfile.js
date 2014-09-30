@@ -18,11 +18,24 @@ module.exports = function ( grunt ) {
   grunt.loadNpmTasks('grunt-karma');
   grunt.loadNpmTasks('grunt-ngmin');
   grunt.loadNpmTasks('grunt-html2js');
+  grunt.loadNpmTasks('grunt-html-snapshot');
 
   /**
    * Load in our build configuration file.
    */
   var userConfig = require( './build.config.js' );
+
+  var snapshotConfig = {
+    htmlSnapshot: {
+      all: {
+        options: {
+          snapshotPath: 'snapshots/',
+          sitePath: 'http://localhost/WooAngular/build/', 
+          urls: ['', '/about']
+        }
+      }
+    }
+  };
 
   /**
    * This is the configuration object Grunt uses to give each plugin its 
@@ -531,7 +544,7 @@ module.exports = function ( grunt ) {
     }
   };
 
-  grunt.initConfig( grunt.util._.extend( taskConfig, userConfig ) );
+  grunt.initConfig( grunt.util._.extend( taskConfig, userConfig, snapshotConfig ) );
 
   /**
    * In order to make it safe to just compile or copy *only* what was changed,
@@ -541,7 +554,7 @@ module.exports = function ( grunt ) {
    * before watching for changes.
    */
   grunt.renameTask( 'watch', 'delta' );
-  grunt.registerTask( 'watch', [ 'build', 'karma:unit', 'delta' ] );
+  grunt.registerTask( 'watch', [ 'build', 'karma:unit', 'delta', 'htmlSnapshot' ] );
 
   /**
    * The default task is to build and compile.

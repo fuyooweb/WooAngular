@@ -3,6 +3,8 @@
   <head>
     <title ng-bind="pageTitle"></title>
 
+    <base href="/WooAngular/build/" />
+
     <!-- social media tags -->
     <meta name="twitter:card" content="summary">
     <meta name="twitter:site" content="@joshdmiller">
@@ -17,6 +19,8 @@
     <meta property="og:description" content="Non-Trivial AngularJS Made Easy: Everything you need to kickstart AngularJS projects: a best-practice directory structure, an intelligent build system, and the best web design libraries around.">
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <meta name="fragment" content="!" />
 
     <!-- font awesome from BootstrapCDN -->
     <link href="http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
@@ -55,7 +59,7 @@
         <div class="collapse navbar-collapse" collapse="menuCollapsed">
           <ul class="nav navbar-nav">
             <li ui-sref-active="active">
-              <a href ui-sref="home">
+              <a href ui-sref="index">
                 <i class="fa fa-home"></i>
                 Home
               </a>
