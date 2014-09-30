@@ -23,8 +23,8 @@ angular.module( 'ngBoilerplate.home', [
  * this way makes each module more "self-contained".
  */
 .config(function config( $stateProvider ) {
-  $stateProvider.state( 'home', {
-    url: '/home',
+  $stateProvider.state( 'index', {
+    url: '/',
     views: {
       "main": {
         controller: 'HomeCtrl',

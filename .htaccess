@@ -1,0 +1,15 @@
+	RewriteEngine on
+
+	RewriteBase /WooAngular/build/
+
+#Snapshots for SEO  
+RewriteCond %{QUERY_STRING} ^_escaped_fragment_=$
+RewriteRule ^build/(.*)$ ../snapshots/snapshot__$1.html [L,NC]
+
+        # Don't rewrite files or directories
+        RewriteCond %{REQUEST_FILENAME} -f [OR]
+        RewriteCond %{REQUEST_FILENAME} -d
+        RewriteRule ^ - [L]
+
+        # Rewrite everything else to index.html to allow html5 state links
+        RewriteRule ^ index.html [L]

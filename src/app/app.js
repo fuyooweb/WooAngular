@@ -1,13 +1,14 @@
-angular.module( 'ngBoilerplate', [
+var app = angular.module( 'ngBoilerplate', [
   'templates-app',
   'templates-common',
   'ngBoilerplate.home',
   'ngBoilerplate.about',
-  'ui.router'
+  'ui.router',
+  'HTML5ModeURLs'
 ])
 
-.config( function myAppConfig ( $stateProvider, $urlRouterProvider ) {
-  $urlRouterProvider.otherwise( '/home' );
+.config( function myAppConfig ( $stateProvider, $urlRouterProvider, $locationProvider ) {
+  $urlRouterProvider.otherwise( '/' );
 })
 
 .run( function run () {
@@ -19,7 +20,9 @@ angular.module( 'ngBoilerplate', [
       $scope.pageTitle = toState.data.pageTitle + ' | ngBoilerplate' ;
     }
   });
-})
+});
 
-;
+angular.module('HTML5ModeURLs', []).config(['$locationProvider', function($route) {
+  $route.html5Mode(true).hashPrefix('!');
+}]);
 
