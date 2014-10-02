@@ -1,0 +1,10 @@
+<h1>{{pageTitle}}</h1>
+
+<ul class="list-group row">
+	<li ng-repeat="product in products | filter:search | limitTo:12" class="list-group-item col-xs-4">
+    <a href="{{product.permalink}}">
+      <h3>{{product.title}}</h3>
+      <img src="{{product.featured_src}}" style="width: 100px; height: 100px;" />
+    </a>
+  </li>
+</ul>
