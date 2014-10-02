@@ -1,4 +1,19 @@
-<div class="jumbotron">
+<a ui-sref="torkad-chili-archive">Torkad chili</a>
+<a ui-sref="krossad-chili-archive">Krossad chili</a>
+<a ui-sref="chilipulver-archive">Chilipulver</a>
+<a ui-sref="chilipaket-archive">Chilipaket</a>
+<a ui-sref="kryddor-archive">Kryddor</a>
+
+<ul class="list-group row">
+  <li ng-repeat="product in productList | filter:search | limitTo:12" class="list-group-item col-xs-4">
+    <a href="{{product.permalink}}">
+      <h3>{{product.title}}</h3>
+      <img src="{{product.featured_src}}" style="width: 100px; height: 100px;" />
+    </a>
+  </li>
+</ul>
+
+<!--<div class="jumbotron">
   <h1>Non-Trivial AngularJS Made Easy</h1>
 
   <p class="lead">
@@ -127,5 +142,5 @@
       </p>
     </div>
   </div>
-</div>
+</div>-->
 
