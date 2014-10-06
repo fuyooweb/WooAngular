@@ -47,6 +47,23 @@
               </a>
             </li>
           </ul>
+          <ul class="nav navbar-nav pull-right">
+            <li class="dropdown">
+              <a class="dropdown-toggle" href="#" data-toggle="dropdown">Mitt konto <strong class="caret"></strong></a>
+              <div class="dropdown-menu" style="padding: 15px; padding-bottom: 0px;" ng-click="$event.stopPropagation();" ng-show="!loggedIn">
+                <form method="post" action="" ng-submit="submitLogin()">
+                  <input style="margin-bottom: 15px;" type="text" placeholder="Användarnamn" id="log" name="log" ng-model="log">
+                  <input style="margin-bottom: 15px;" type="password" placeholder="Lösenord" id="pwd" name="pwd" ng-model="pwd">
+                  <input style="float: left; margin-right: 10px;" type="checkbox" name="rememberme" id="rememberme" value="1" ng-model="rememberme">
+                  <label class="string optional" for="rememberme"> Kom ihåg</label>
+                  <input class="btn btn-primary btn-block" type="submit" id="sign-in" value="Logga in">
+                </form>
+              </div>
+              <div class="dropdown-menu" style="padding: 15px; padding-bottom: 0px;" ng-click="$event.stopPropagation();" ng-show="loggedIn">
+                Hej, {{firstname}}
+              </div>
+            </li>
+          </ul>
         </div>
       </div>
     </div>
