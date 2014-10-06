@@ -36,11 +36,33 @@ var app = angular.module( 'ngBoilerplate', [
 })
 
 .controller( 'AppCtrl', ['$scope', '$location', '$http', '$rootScope', 'productList', function AppCtrl ( $scope, $location, $http, $rootScope, productList ) {
+  
+  $scope.loggedIn = false;
+
   $scope.$on('$stateChangeSuccess', function(event, toState, toParams, fromState, fromParams){
     if ( angular.isDefined( toState.data.pageTitle ) ) {
       $scope.pageTitle = toState.data.pageTitle;
     }
   });
+
+  $scope.submitLogin = function() {
+    $http.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
+    $http({
+      method: 'POST',
+      url: '/WooAngular/build/wp/wp-admin/admin-ajax.php',
+      params: {
+        action: 'login',
+        log: $scope.log,
+        pwd: $scope.pwd,
+        rememberme: $scope.rememberme
+      }
+    }).then(function(response) {
+      if (typeof response.data.id != "undefined") {
+        $scope.loggedIn = true;
+        $scope.firstname = response.data.firstname;
+      }
+    });
+  };
 }])
 
 .filter('safeInput', ['$sce', function($sce) {
