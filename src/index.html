@@ -10,7 +10,7 @@
     <meta name="fragment" content="!" />
 
     <!-- font awesome from BootstrapCDN -->
-    <link href="/WooAngular/build/assets/font-awesome.css" rel="stylesheet">
+    <link href="/WooAngular/build/assets/font-awesome.css" type="text/css" rel="stylesheet">
 
     <!-- compiled CSS --><% styles.forEach( function ( file ) { %>
     <link rel="stylesheet" type="text/css" href="<%= file %>" /><% }); %>
@@ -50,7 +50,10 @@
           <ul class="nav navbar-nav pull-right">
             <li class="dropdown">
               <a class="dropdown-toggle" href="#" data-toggle="dropdown">Mitt konto <strong class="caret"></strong></a>
-              <div class="dropdown-menu" style="padding: 15px; padding-bottom: 0px;" ng-click="$event.stopPropagation();" ng-show="!loggedIn">
+              <div class="dropdown-menu" style="padding: 15px; padding-bottom: 0px;" ng-show="!loaded">
+                <span class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span>
+              </div>
+              <div class="dropdown-menu" style="padding: 15px; padding-bottom: 0px;" ng-click="$event.stopPropagation();" ng-show="!user.id && loaded">
                 <form method="post" action="" ng-submit="submitLogin()">
                   <input style="margin-bottom: 15px;" type="text" placeholder="Användarnamn" id="log" name="log" ng-model="log">
                   <input style="margin-bottom: 15px;" type="password" placeholder="Lösenord" id="pwd" name="pwd" ng-model="pwd">
@@ -59,8 +62,10 @@
                   <input class="btn btn-primary btn-block" type="submit" id="sign-in" value="Logga in">
                 </form>
               </div>
-              <div class="dropdown-menu" style="padding: 15px; padding-bottom: 0px;" ng-click="$event.stopPropagation();" ng-show="loggedIn">
-                Hej, {{firstname}}
+              <div class="dropdown-menu" style="padding: 15px; padding-bottom: 0px;" ng-click="$event.stopPropagation();" ng-show="user.id && loaded">
+                Hej, {{user.firstname}}
+                Kundvagn: {{user.cart.length}}
+                <a class="btn" ng-click="logout()">Logga ut</a>
               </div>
             </li>
           </ul>
