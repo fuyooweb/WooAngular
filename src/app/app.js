@@ -6,14 +6,16 @@ var app = angular.module( 'ngBoilerplate', [
   'ngBoilerplate.product',
   'ngBoilerplate.archive',
   'ui.router',
-  'HTML5ModeURLs'
+  'HTML5ModeURLs',
+  'ui.bootstrap'
 ])
 
 .config( function myAppConfig ( $stateProvider, $urlRouterProvider, $locationProvider ) {
   $urlRouterProvider.otherwise( '/' );
 })
 
-.run( function run () {
+.run(function run() {
+  
 })
 
 .factory('productList', ['$http', '$q', function fetchProductList($http, $q) {
@@ -35,9 +37,24 @@ var app = angular.module( 'ngBoilerplate', [
   return $rootScope.products;
 })
 
-.controller( 'AppCtrl', ['$scope', '$location', '$http', '$rootScope', 'productList', function AppCtrl ( $scope, $location, $http, $rootScope, productList ) {
-  
-  $scope.loggedIn = false;
+.factory('isLoggedIn', ['$http', '$q', function isLoggedIn($http, $q) {
+
+  var getData = function() {
+    var deferred = $q.defer();
+    
+    $http.get('/WooAngular/build/wp/wp-admin/admin-ajax.php?action=isloggedin').success(function(data) {
+      deferred.resolve(data);
+    });
+
+    return deferred.promise;
+  };
+
+  return { getData: getData };
+}])
+
+.controller( 'AppCtrl', ['$scope', '$location', '$http', 'productList', 'isLoggedIn', '$timeout', function AppCtrl ( $scope, $location, $http, productList, isLoggedIn, $timeout ) {
+
+  $scope.loaded = false;
 
   $scope.$on('$stateChangeSuccess', function(event, toState, toParams, fromState, fromParams){
     if ( angular.isDefined( toState.data.pageTitle ) ) {
@@ -57,12 +74,25 @@ var app = angular.module( 'ngBoilerplate', [
         rememberme: $scope.rememberme
       }
     }).then(function(response) {
-      if (typeof response.data.id != "undefined") {
-        $scope.loggedIn = true;
-        $scope.firstname = response.data.firstname;
+      if (angular.isDefined(response.data.id)) {
+        $scope.user = response.data;
       }
     });
   };
+
+  $scope.logout = function() {
+    delete $scope.user;
+    $http.get('/WooAngular/build/wp/wp-admin/admin-ajax.php?action=logout');
+  };
+
+  // Check Auth post-render
+  $timeout(function() {
+    var promise = isLoggedIn.getData();
+    promise.then(function(result) {
+      $scope.user = result;
+      $scope.loaded = true;
+    });
+  });
 }])
 
 .filter('safeInput', ['$sce', function($sce) {
