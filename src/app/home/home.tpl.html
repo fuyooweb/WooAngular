@@ -9,6 +9,13 @@
     <a href="{{product.permalink}}">
       <h3>{{product.title}}</h3>
       <img src="{{product.featured_src}}" style="width: 100px; height: 100px;" />
+      <div class="clear"></div>
+      
+      <select ng-model="variationOption" ng-init="variationOption = product.variations[0].id" name="product_variation" ng-click="$event.preventDefault();" ng-show="product.variations.length">
+        <option ng-repeat="variation in product.variations" name="product_variation_option" value="{{variation.id}}">{{variation.attributes[0].option}}</option>
+      </select>
+
+      <span class="btn btn-primary add-to-cart" ng-click="$event.preventDefault(); addToCart(product, variationOption);">L&auml;gg i kundvagn</span>
     </a>
   </li>
 </ul>
