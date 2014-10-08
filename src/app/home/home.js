@@ -37,8 +37,8 @@ angular.module( 'ngBoilerplate.home', [
 /**
  * And of course we define a controller for our route.
  */
-.controller( 'HomeCtrl', ['$scope', 'productList', function HomeController( $scope, productList ) {
-  var productListPromise = productList.getData();
+.controller( 'HomeCtrl', ['$scope', 'API', function HomeController( $scope, API ) {
+  var productListPromise = API.getProductList();
   productListPromise.then(function(result) {
     $scope.productList = result.products;
     for (var i = 0; i < $scope.productList.length; i++) {
