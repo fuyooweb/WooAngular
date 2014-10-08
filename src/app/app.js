@@ -52,7 +52,22 @@ var app = angular.module( 'ngBoilerplate', [
   return { getData: getData };
 }])
 
-.controller( 'AppCtrl', ['$scope', '$location', '$http', 'productList', 'isLoggedIn', '$timeout', function AppCtrl ( $scope, $location, $http, productList, isLoggedIn, $timeout ) {
+.factory('getCart', ['$http', '$q', function getCart($http, $q) {
+
+  var getData = function() {
+    var deferred = $q.defer();
+    
+    $http.get('/WooAngular/build/wp/wp-admin/admin-ajax.php?action=getcart').success(function(data) {
+      deferred.resolve(data);
+    });
+
+    return deferred.promise;
+  };
+
+  return { getData: getData };
+}])
+
+.controller( 'AppCtrl', ['$scope', '$location', '$http', 'productList', 'isLoggedIn', '$timeout', 'getCart', function AppCtrl ( $scope, $location, $http, productList, isLoggedIn, $timeout, getCart ) {
 
   $scope.loaded = false;
 
@@ -61,6 +76,33 @@ var app = angular.module( 'ngBoilerplate', [
       $scope.pageTitle = toState.data.pageTitle;
     }
   });
+
+  $scope.addToCart = function(product, variation) {
+    var data = {
+      action: 'addtocart',
+      product_id: product.id,
+      variation_id: variation
+    };
+
+    for (var i = 0; i < product.variations.length; i++) {
+      if (product.variations[i].id == variation) {
+        data.variation_name = product.variations[i].attributes[0].name;
+        data.variation_value = product.variations[i].attributes[0].option;
+      }
+    }
+
+    $http.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
+    $http({
+      method: 'POST',
+      url: '/WooAngular/build/wp/wp-admin/admin-ajax.php',
+      params: data
+    }).then(function(response) {
+      getCart.getData().then(function(result) {
+        $scope.user.cart = result;
+        console.log($scope.user);
+      });
+    });
+  };
 
   $scope.submitLogin = function() {
     $http.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
