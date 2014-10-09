@@ -85,10 +85,8 @@ angular.module( 'ngBoilerplate.product', [
 /**
  * And of course we define a controller for our route.
  */
-.controller( 'ProductCtrl', ['$scope', 'productList', '$stateParams', function HomeController( $scope, productList, $stateParams ) {
-  var productListPromise = productList.getData();
-
-  productListPromise.then(function(result) {
+.controller( 'ProductCtrl', ['$scope', 'API', '$stateParams', function HomeController( $scope, API, $stateParams ) {
+  API.getProductList().then(function(result) {
     $scope.productList = result.products;
     for (var i = 0; i < $scope.productList.length; i++) {
       $scope.productList[i].permalink = $scope.productList[i].permalink.replace('https://www.chilikungen.se/produkt', '/WooAngular/build');

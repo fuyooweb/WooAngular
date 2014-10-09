@@ -55,7 +55,55 @@ var app = angular.module( 'ngBoilerplate', [
     login: function(log, pwd, rememberme) {
       var deferred = $q.defer();
 
-      
+      $http.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
+      $http({
+        method: 'POST',
+        url: ajaxUrl,
+        params: {
+          action: 'login',
+          log: log,
+          pwd: pwd,
+          rememberme: rememberme
+        }
+      }).success(function(data) {
+        deferred.resolve(data);
+      });
+
+      return deferred.promise;
+    },
+
+    logout: function() {
+      var deferred = $q.defer();
+
+      $http.get('/WooAngular/build/wp/wp-admin/admin-ajax.php?action=logout');
+
+      return deferred.promise;
+    },
+
+    addToCart: function(product, variation) {
+      var deferred = $q.defer();
+
+      var data = {
+        action: 'addtocart',
+        product_id: product.id,
+        variation_id: variation
+      };
+
+      for (var i = 0; i < product.variations.length; i++) {
+        if (product.variations[i].id == variation) {
+          data.variation_name = product.variations[i].attributes[0].name;
+          data.variation_value = product.variations[i].attributes[0].option;
+        }
+      }
+
+      $http.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
+      $http({
+        method: 'POST',
+        url: ajaxUrl,
+        params: data
+      }).success(function(data) {
+        deferred.resolve(data);
+      });
 
       return deferred.promise;
     }
@@ -73,25 +121,7 @@ var app = angular.module( 'ngBoilerplate', [
   });
 
   $scope.addToCart = function(product, variation) {
-    var data = {
-      action: 'addtocart',
-      product_id: product.id,
-      variation_id: variation
-    };
-
-    for (var i = 0; i < product.variations.length; i++) {
-      if (product.variations[i].id == variation) {
-        data.variation_name = product.variations[i].attributes[0].name;
-        data.variation_value = product.variations[i].attributes[0].option;
-      }
-    }
-
-    $http.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
-    $http({
-      method: 'POST',
-      url: '/WooAngular/build/wp/wp-admin/admin-ajax.php',
-      params: data
-    }).then(function(response) {
+    API.addToCart(product, variation).then(function(result) {
       API.getCart().then(function(result) {
         if (!angular.isDefined($scope.user)) {
           $scope.user = {};
@@ -103,19 +133,9 @@ var app = angular.module( 'ngBoilerplate', [
   };
 
   $scope.submitLogin = function() {
-    $http.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
-    $http({
-      method: 'POST',
-      url: '/WooAngular/build/wp/wp-admin/admin-ajax.php',
-      params: {
-        action: 'login',
-        log: $scope.log,
-        pwd: $scope.pwd,
-        rememberme: $scope.rememberme
-      }
-    }).then(function(response) {
-      if (angular.isDefined(response.data.id)) {
-        $scope.user = response.data;
+    API.login($scope.log, $scope.pwd, $scope.rememberme).then(function(result) {
+      if (angular.isDefined(result.id)) {
+        $scope.user = result;
         $scope.log = '';
         $scope.pwd = '';
       }
@@ -123,16 +143,16 @@ var app = angular.module( 'ngBoilerplate', [
   };
 
   $scope.logout = function() {
-    delete $scope.user;
-    $http.get('/WooAngular/build/wp/wp-admin/admin-ajax.php?action=logout');
+    API.logout().then(function(result) {
+      delete $scope.user;
+    });
   };
 
   // Check Auth post-render
   $timeout(function() {
-    var promise = API.isLoggedIn();
-    promise.then(function(result) {
+    API.isLoggedIn().then(function(result) {
 
-      if (!angular.isDefined('error')) {
+      if (!angular.isDefined(result.error)) {
         $scope.user = result;
       }
 
