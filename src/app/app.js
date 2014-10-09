@@ -18,56 +18,99 @@ var app = angular.module( 'ngBoilerplate', [
   
 })
 
-.factory('productList', ['$http', '$q', function fetchProductList($http, $q) {
+.factory('API', ['$http', '$q', function APIRequest($http, $q) {
+  var ajaxUrl = '/WooAngular/build/wp/wp-admin/admin-ajax.php';
 
-  var getData = function() {
-    var deferred = $q.defer();
-    
-    $http.get('/WooAngular/build/assets/products.json').success(function(data) {
-      deferred.resolve(data);
-    });
+  return {
+    getProductList: function() {
+      var deferred = $q.defer();
 
-    return deferred.promise;
+      $http.get('/WooAngular/build/assets/products.json').success(function(data) {
+        deferred.resolve(data);
+      });
+
+      return deferred.promise;
+    },
+
+    isLoggedIn: function() {
+      var deferred = $q.defer();
+      
+      $http.get(ajaxUrl + '?action=isloggedin').success(function(data) {
+        deferred.resolve(data);
+      });
+
+      return deferred.promise;
+    },
+
+    getCart: function() {
+      var deferred = $q.defer();
+      
+      $http.get(ajaxUrl + '?action=getcart').success(function(data) {
+        deferred.resolve(data);
+      });
+
+      return deferred.promise;
+    },
+
+    login: function(log, pwd, rememberme) {
+      var deferred = $q.defer();
+
+      $http.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
+      $http({
+        method: 'POST',
+        url: ajaxUrl,
+        params: {
+          action: 'login',
+          log: log,
+          pwd: pwd,
+          rememberme: rememberme
+        }
+      }).success(function(data) {
+        deferred.resolve(data);
+      });
+
+      return deferred.promise;
+    },
+
+    logout: function() {
+      var deferred = $q.defer();
+
+      $http.get('/WooAngular/build/wp/wp-admin/admin-ajax.php?action=logout');
+
+      return deferred.promise;
+    },
+
+    addToCart: function(product, variation) {
+      var deferred = $q.defer();
+
+      var data = {
+        action: 'addtocart',
+        product_id: product.id,
+        variation_id: variation
+      };
+
+      for (var i = 0; i < product.variations.length; i++) {
+        if (product.variations[i].id == variation) {
+          data.variation_name = product.variations[i].attributes[0].name;
+          data.variation_value = product.variations[i].attributes[0].option;
+        }
+      }
+
+      $http.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
+      $http({
+        method: 'POST',
+        url: ajaxUrl,
+        params: data
+      }).success(function(data) {
+        deferred.resolve(data);
+      });
+
+      return deferred.promise;
+    }
   };
-
-  return { getData: getData };
 }])
 
-.factory('getProducts', function($rootScope) {
-  return $rootScope.products;
-})
-
-.factory('isLoggedIn', ['$http', '$q', function isLoggedIn($http, $q) {
-
-  var getData = function() {
-    var deferred = $q.defer();
-    
-    $http.get('/WooAngular/build/wp/wp-admin/admin-ajax.php?action=isloggedin').success(function(data) {
-      deferred.resolve(data);
-    });
-
-    return deferred.promise;
-  };
-
-  return { getData: getData };
-}])
-
-.factory('getCart', ['$http', '$q', function getCart($http, $q) {
-
-  var getData = function() {
-    var deferred = $q.defer();
-    
-    $http.get('/WooAngular/build/wp/wp-admin/admin-ajax.php?action=getcart').success(function(data) {
-      deferred.resolve(data);
-    });
-
-    return deferred.promise;
-  };
-
-  return { getData: getData };
-}])
-
-.controller( 'AppCtrl', ['$scope', '$location', '$http', 'productList', 'isLoggedIn', '$timeout', 'getCart', function AppCtrl ( $scope, $location, $http, productList, isLoggedIn, $timeout, getCart ) {
+.controller( 'AppCtrl', ['$scope', '$location', '$http', '$timeout', 'API', function AppCtrl ( $scope, $location, $http, $timeout, API ) {
 
   $scope.loaded = false;
 
@@ -78,26 +121,11 @@ var app = angular.module( 'ngBoilerplate', [
   });
 
   $scope.addToCart = function(product, variation) {
-    var data = {
-      action: 'addtocart',
-      product_id: product.id,
-      variation_id: variation
-    };
-
-    for (var i = 0; i < product.variations.length; i++) {
-      if (product.variations[i].id == variation) {
-        data.variation_name = product.variations[i].attributes[0].name;
-        data.variation_value = product.variations[i].attributes[0].option;
-      }
-    }
-
-    $http.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
-    $http({
-      method: 'POST',
-      url: '/WooAngular/build/wp/wp-admin/admin-ajax.php',
-      params: data
-    }).then(function(response) {
-      getCart.getData().then(function(result) {
+    API.addToCart(product, variation).then(function(result) {
+      API.getCart().then(function(result) {
+        if (!angular.isDefined($scope.user)) {
+          $scope.user = {};
+        }
         $scope.user.cart = result;
         console.log($scope.user);
       });
@@ -105,34 +133,31 @@ var app = angular.module( 'ngBoilerplate', [
   };
 
   $scope.submitLogin = function() {
-    $http.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
-    $http({
-      method: 'POST',
-      url: '/WooAngular/build/wp/wp-admin/admin-ajax.php',
-      params: {
-        action: 'login',
-        log: $scope.log,
-        pwd: $scope.pwd,
-        rememberme: $scope.rememberme
-      }
-    }).then(function(response) {
-      if (angular.isDefined(response.data.id)) {
-        $scope.user = response.data;
+    API.login($scope.log, $scope.pwd, $scope.rememberme).then(function(result) {
+      if (angular.isDefined(result.id)) {
+        $scope.user = result;
+        $scope.log = '';
+        $scope.pwd = '';
       }
     });
   };
 
   $scope.logout = function() {
-    delete $scope.user;
-    $http.get('/WooAngular/build/wp/wp-admin/admin-ajax.php?action=logout');
+    API.logout().then(function(result) {
+      delete $scope.user;
+    });
   };
 
   // Check Auth post-render
   $timeout(function() {
-    var promise = isLoggedIn.getData();
-    promise.then(function(result) {
-      $scope.user = result;
+    API.isLoggedIn().then(function(result) {
+
+      if (!angular.isDefined(result.error)) {
+        $scope.user = result;
+      }
+
       $scope.loaded = true;
+
     });
   });
 }])

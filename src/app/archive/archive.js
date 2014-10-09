@@ -85,10 +85,10 @@ angular.module( 'ngBoilerplate.archive', [
 /**
  * And of course we define a controller for our route.
  */
-.controller( 'ArchiveCtrl', ['$scope', 'productList', '$state', '$stateParams', function HomeController( $scope, productList, $state, $stateParams ) {
-  var productListPromise = productList.getData();
+.controller( 'ArchiveCtrl', ['$scope', 'API', '$state', '$stateParams', function HomeController( $scope, API, $state, $stateParams ) {
   $scope.products = [];
-  productListPromise.then(function(result) {
+  
+  API.getProductList().then(function(result) {
     $scope.productList = result.products;
     for (var i = 0; i < $scope.productList.length; i++) {
       $scope.productList[i].permalink = $scope.productList[i].permalink.replace('https://www.chilikungen.se/produkt', '/WooAngular/build');
