@@ -21,7 +21,7 @@ angular.module( 'ngBoilerplate.archive', [
  * will handle ensuring they are all available at run-time, but splitting it
  * this way makes each module more "self-contained".
  */
-.config(function config( $stateProvider ) {
+/*.config(function config( $stateProvider ) {
   $stateProvider.state( 'torkad-chili-archive', {
     url: '/torkad-chili/',
     views: {
@@ -80,7 +80,7 @@ angular.module( 'ngBoilerplate.archive', [
     },
     data:{ pageTitle: 'Chilipaket' }
   });
-})
+})*/
 
 /**
  * And of course we define a controller for our route.
@@ -91,7 +91,8 @@ angular.module( 'ngBoilerplate.archive', [
   API.getProductList().then(function(result) {
     $scope.productList = result.products;
     for (var i = 0; i < $scope.productList.length; i++) {
-      $scope.productList[i].permalink = $scope.productList[i].permalink.replace('https://www.chilikungen.se/produkt', '/WooAngular/build');
+      $scope.productList[i].permalink = $scope.productList[i].permalink.replace('/wp/produkt', '');
+      $scope.productList[i].permalink = $scope.productList[i].permalink.replace('http://localhost/WooAngular/build', '');
       if ($scope.productList[i].permalink.indexOf($state.current.url) >= 0) {
         $scope.products.push($scope.productList[i]);
       }

@@ -7,3 +7,5 @@ vendor/
 snapshots/
 wp/
 src/assets/*.json
+products.json
+categories.js

@@ -5,27 +5,70 @@ var app = angular.module( 'ngBoilerplate', [
   'ngBoilerplate.about',
   'ngBoilerplate.product',
   'ngBoilerplate.archive',
+  'ngBoilerplate.page',
   'ui.router',
   'HTML5ModeURLs',
   'ui.bootstrap'
 ])
 
-.config( function myAppConfig ( $stateProvider, $urlRouterProvider, $locationProvider ) {
+.config( ['$stateProvider', '$urlRouterProvider', '$locationProvider', function myAppConfig ( $stateProvider, $urlRouterProvider, $locationProvider ) {
   $urlRouterProvider.otherwise( '/' );
-})
+
+  angular.forEach(categories, function(value) {
+    if (value.taxonomy == "product_cat") {
+      value.controller = 'ProductCtrl';
+      value.templateUrl = 'product/product.tpl.html';
+    } else if (value.taxonomy == "category") {
+      value.controller = 'PageCtrl';
+      value.templateUrl = 'page/page.tpl.html';
+    }
+
+    $stateProvider.state( value.slug + '-archive', {
+      url: '/' + value.slug + '/',
+      views: {
+        "main": {
+          controller: 'ArchiveCtrl',
+          templateUrl: 'archive/archive.tpl.html'
+        }
+      },
+      data:{ pageTitle: value.cat_name }
+    });
+
+    $stateProvider.state( value.slug, {
+      url: '/' + value.slug + '/:name/',
+      views: {
+        "main": {
+          controller: value.controller,
+          templateUrl: value.templateUrl
+        }
+      },
+      data:{ pageTitle: value.cat_name }
+    });
+  });
+}])
 
 .run(function run() {
   
 })
 
 .factory('API', ['$http', '$q', function APIRequest($http, $q) {
-  var ajaxUrl = '/WooAngular/build/wp/wp-admin/admin-ajax.php';
+  var ajaxUrl = 'wp/wp-admin/admin-ajax.php';
 
   return {
     getProductList: function() {
       var deferred = $q.defer();
 
-      $http.get('/WooAngular/build/assets/products.json').success(function(data) {
+      $http.get('assets/products.json').success(function(data) {
+        deferred.resolve(data);
+      });
+
+      return deferred.promise;
+    },
+
+    getPagesList: function() {
+      var deferred = $q.defer();
+
+      $http.get('assets/pages.json').success(function(data) {
         deferred.resolve(data);
       });
 
@@ -75,7 +118,7 @@ var app = angular.module( 'ngBoilerplate', [
     logout: function() {
       var deferred = $q.defer();
 
-      $http.get('/WooAngular/build/wp/wp-admin/admin-ajax.php?action=logout');
+      $http.get('wp/wp-admin/admin-ajax.php?action=logout');
 
       return deferred.promise;
     },
@@ -127,7 +170,6 @@ var app = angular.module( 'ngBoilerplate', [
           $scope.user = {};
         }
         $scope.user.cart = result;
-        console.log($scope.user);
       });
     });
   };
